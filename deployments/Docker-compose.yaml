@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  stan-server:
+    image: nats-streaming
+    ports:
+      - "4222:4222"
+    command:
+      - "-cid"
+      - test_cluster
+    networks:
+      - network
+
+  postgres:
+    image: postgres:15.3
+    restart: on-failure
+    ports:
+      - "5433:5432"
+    volumes:
+      - ../db/data:/var/lib/postgresql/data
+      - ../db/init.sql:/docker-entrypoint-initdb.d/10-init.sql
+    env_file:
+      - ../configs/.env
+    networks:
+      - network
+
+  publisher:
+    build:
+      context: ../publisher
+      dockerfile: /build/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+
+  subscriber:
+    build:
+      context: ../subscriber
+      dockerfile: /build/Dockerfile
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
