@@ -1,6 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type Delivery struct {
+	gorm.Model
 	Name    string `json:"name"`
 	Phone   string `json:"phone"`
 	Zip     string `json:"zip"`

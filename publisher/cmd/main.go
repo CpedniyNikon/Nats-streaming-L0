@@ -1,24 +1,43 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/spf13/viper"
 	"log"
-	"publisher/internal/handler"
-	"publisher/pkg/server"
+	"os"
+	"subscriber/internal/models"
+	"time"
 )
 
 func main() {
-	fmt.Println("server started")
 	if err := InitConfig(); err != nil {
 		log.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	handlers := handler.NewHandler()
+	content, err := os.ReadFile(viper.GetString("file_path"))
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+	var order models.Order
+	err = json.Unmarshal(content, &order)
+	if err != nil {
+		fmt.Println(err)
+	}
+	reqBodyBytes := new(bytes.Buffer)
+	json.NewEncoder(reqBodyBytes).Encode(order)
 
-	srv := new(server.Server)
-	if err := srv.Run(viper.GetString("app_port"), handlers.InitAuthRoutes()); err != nil {
-		log.Fatal("error occurred while auth service " + err.Error())
+	nc, err := InitNatsBridge()
+	if err != nil {
+		log.Fatalln("error initializing nats bridge: %s", err.Error())
+	}
+
+	for {
+		RequestModelOrder(nc, reqBodyBytes.Bytes())
+		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -27,4 +46,21 @@ func InitConfig() error {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("configs")
 	return viper.ReadInConfig()
+}
+
+func InitNatsBridge() (*nats.Conn, error) {
+	nc, err := nats.Connect("nats://stan-server:4222")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return nc, err
+}
+
+func RequestModelOrder(nc *nats.Conn, data []byte) {
+	msg, err := nc.Request("Model-order", data, 100*time.Millisecond)
+	if err != nil {
+		log.Println(err)
+	} else {
+		fmt.Println(string(msg.Data))
+	}
 }

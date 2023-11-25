@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15.3
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../db/data:/var/lib/postgresql/data
+    env_file:
+      - ../configs/.env
+    networks:
+      - network
+
   stan-server:
     image: nats-streaming
     ports:
@@ -11,31 +23,19 @@ services:
     networks:
       - network
 
-  postgres:
-    image: postgres:15.3
-    restart: on-failure
-    ports:
-      - "5433:5432"
-    volumes:
-      - ../db/data:/var/lib/postgresql/data
-      - ../db/init.sql:/docker-entrypoint-initdb.d/10-init.sql
-    env_file:
-      - ../configs/.env
-    networks:
-      - network
 
-  publisher:
+  subscriber:
     build:
-      context: ../publisher
+      context: ../subscriber
       dockerfile: /build/Dockerfile
     ports:
       - "8080:8080"
     networks:
       - network
 
-  subscriber:
+  publisher:
     build:
-      context: ../subscriber
+      context: ../publisher
       dockerfile: /build/Dockerfile
     networks:
       - network

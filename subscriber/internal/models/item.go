@@ -1,6 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type Item struct {
+	gorm.Model
 	ChrtID      int    `json:"chrt_id"`
 	TrackNumber string `json:"track_number"`
 	Price       int    `json:"price"`

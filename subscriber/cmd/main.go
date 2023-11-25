@@ -1,43 +1,44 @@
 package main
 
 import (
-	"database/sql"
-	"encoding/json"
 	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/nats-io/nats.go"
-	_ "gorm.io/driver/postgres"
-	_ "gorm.io/gorm"
+	"github.com/spf13/viper"
 	"log"
-	"subscriber/internal/models"
-	"subscriber/internal/utils"
+	"publisher/cmd/methods"
+	"publisher/internal/handler"
+	"publisher/internal/models"
+	"publisher/pkg/server"
+	"time"
 )
 
 func main() {
-	db, err := sql.Open("postgres", utils.ConnectionInfo)
-	if err != nil {
-		log.Fatal(err)
+	time.Sleep(2 * time.Second)
+	fmt.Println("server started")
+	if err := methods.InitConfig(); err != nil {
+		log.Fatalf("error initializing configs: %s", err.Error())
 	}
-	defer db.Close()
 
-	nc, err := nats.Connect("nats://stan-server:4222")
+	nc, err := methods.InitNatsBridge()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("error initializing nats bridge: %s", err.Error())
 	}
-	defer nc.Close()
 
-	nc.Subscribe("Model-order", func(m *nats.Msg) {
-		var restoredOrder models.Order
-		err = json.Unmarshal(m.Data, &restoredOrder)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(restoredOrder)
+	db, err := methods.InitDbConnection()
+	if err != nil {
+		panic(err)
+	}
 
-		response := []byte("response")
-		nc.Publish(m.Reply, response)
-	})
-	for {
+	db.AutoMigrate(&models.Item{})
+	db.AutoMigrate(&models.Delivery{})
+	db.AutoMigrate(&models.Payment{})
+	db.AutoMigrate(&models.Order{})
 
+	methods.SubscribeModelOrder(nc)
+
+	handlers := handler.NewHandler()
+
+	srv := new(server.Server)
+	if err := srv.Run(viper.GetString("app_port"), handlers.InitAuthRoutes()); err != nil {
+		log.Fatal("error occurred while auth service " + err.Error())
 	}
 }

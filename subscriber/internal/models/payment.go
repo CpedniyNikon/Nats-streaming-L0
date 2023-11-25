@@ -1,6 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type Payment struct {
+	gorm.Model
 	Transaction  string `json:"transaction"`
 	RequestID    string `json:"request_id"`
 	Currency     string `json:"currency"`
