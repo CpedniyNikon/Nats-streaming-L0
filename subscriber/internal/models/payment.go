@@ -1,9 +1,7 @@
 package models
 
-import "gorm.io/gorm"
-
 type Payment struct {
-	gorm.Model
+	ID           uint   `gorm:"primarykey" json:"-"`
 	Transaction  string `json:"transaction"`
 	RequestID    string `json:"request_id"`
 	Currency     string `json:"currency"`
@@ -14,4 +12,5 @@ type Payment struct {
 	DeliveryCost int    `json:"delivery_cost"`
 	GoodsTotal   int    `json:"goods_total"`
 	CustomFee    int    `json:"custom_fee"`
+	OrderId      uint   `gorm:"foreignKey:OrderId" json:"-"`
 }

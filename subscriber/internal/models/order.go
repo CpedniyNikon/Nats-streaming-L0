@@ -1,18 +1,17 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
 type Order struct {
-	gorm.Model
+	ID                uint      `gorm:"primarykey" json:"-"`
 	OrderUid          string    `json:"order_uid"`
 	TrackNumber       string    `json:"track_number"`
 	Entry             string    `json:"entry"`
-	Delivery          Delivery  `gorm:"foreignKey:ID" json:"delivery"`
-	Payment           Payment   `gorm:"foreignKey:ID" json:"payment"`
-	Items             []Item    `gorm:"foreignKey:ID" json:"items"`
+	Delivery          Delivery  `json:"delivery"`
+	Payment           Payment   `json:"payment"`
+	Items             []Item    `json:"items"`
 	Locale            string    `json:"locale"`
 	InternalSignature string    `json:"internal_signature"`
 	CustomerID        string    `json:"customer_id"`

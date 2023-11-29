@@ -11,4 +11,5 @@ RUN go build -o subscriber ./cmd
 
 EXPOSE 8080
 
+
 CMD [ "./subscriber" ]

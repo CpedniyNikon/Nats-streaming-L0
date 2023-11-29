@@ -16,10 +16,11 @@ func NewHandler() (h *Handler) {
 func (h *Handler) InitAuthRoutes() *gin.Engine {
 	h.routes = gin.New()
 	h.routes.Use(cors.Default())
-
+	h.routes.LoadHTMLGlob("templates/*")
 	auth := h.routes.Group("/orders")
 	{
-		auth.POST("/get", h.get)
+		auth.GET("/get", h.Get)
+		auth.GET("/:orderId/status", h.OrderIdStatus)
 	}
 	return h.routes
 }

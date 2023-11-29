@@ -18,8 +18,7 @@ services:
     ports:
       - "4222:4222"
     command:
-      - "-cid"
-      - test_cluster
+      - '-cid=cluster'
     networks:
       - network
 

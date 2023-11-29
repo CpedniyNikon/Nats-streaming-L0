@@ -1,9 +1,7 @@
 package models
 
-import "gorm.io/gorm"
-
 type Delivery struct {
-	gorm.Model
+	ID      uint   `gorm:"primarykey" json:"-"`
 	Name    string `json:"name"`
 	Phone   string `json:"phone"`
 	Zip     string `json:"zip"`
@@ -11,4 +9,5 @@ type Delivery struct {
 	Address string `json:"address"`
 	Region  string `json:"region"`
 	Email   string `json:"email"`
+	OrderId uint   `gorm:"foreignKey:OrderId" json:"-"`
 }

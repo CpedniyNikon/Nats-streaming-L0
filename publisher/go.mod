@@ -3,17 +3,22 @@ module subscriber
 go 1.19
 
 require (
-	github.com/nats-io/nats.go v1.31.0
+	github.com/brianvoe/gofakeit/v6 v6.24.0
+	github.com/nats-io/stan.go v0.10.4
 	github.com/spf13/viper v1.17.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/compress v1.17.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/nats-io/nkeys v0.4.5 // indirect
+	github.com/nats-io/nats-server/v2 v2.10.5 // indirect
+	github.com/nats-io/nats-streaming-server v0.25.6 // indirect
+	github.com/nats-io/nats.go v1.31.0 // indirect
+	github.com/nats-io/nkeys v0.4.6 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
