@@ -3,24 +3,28 @@ package handler
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"publisher/pkg/service"
 )
 
 type Handler struct {
-	routes *gin.Engine
+	routes  *gin.Engine
+	service *service.Service
 }
 
-func NewHandler() (h *Handler) {
-	return &Handler{}
+func NewHandler(service *service.Service) *Handler {
+	return &Handler{service: service}
 }
 
 func (h *Handler) InitAuthRoutes() *gin.Engine {
 	h.routes = gin.New()
 	h.routes.Use(cors.Default())
 	h.routes.LoadHTMLGlob("templates/*")
-	auth := h.routes.Group("/orders")
+	orders := h.routes.Group("/orders")
 	{
-		auth.GET("/get", h.Get)
-		auth.GET("/:orderId/status", h.OrderIdStatus)
+		orders.GET("/get", h.Get)
+		orders.GET("/:orderId/status", h.OrderIdStatus)
+		orders.GET("/cache/:orderUId/status", h.OrderUIdStatusCache)
 	}
+
 	return h.routes
 }

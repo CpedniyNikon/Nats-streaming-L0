@@ -6,24 +6,26 @@ import (
 	"log"
 	"publisher/internal/handler"
 	"publisher/internal/models"
-	methods2 "publisher/internal/utils/methods"
+	"publisher/internal/utils/methods"
+	"publisher/internal/utils/structs/cache"
 	"publisher/pkg/server"
+	"publisher/pkg/service"
 	"time"
 )
 
 func main() {
 	time.Sleep(5 * time.Second)
 	fmt.Println("server started")
-	if err := methods2.InitConfig(); err != nil {
+	if err := methods.InitConfig(); err != nil {
 		log.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	nc, err := methods2.InitNatsBridge()
+	nc, err := methods.InitNatsBridge()
 	if err != nil {
 		log.Fatalln("error initializing nats bridge: %s", err.Error())
 	}
 
-	db, err := methods2.InitDbConnection()
+	db, err := methods.InitDbConnection()
 	if err != nil {
 		panic(err)
 	}
@@ -33,9 +35,12 @@ func main() {
 	db.AutoMigrate(&models.Item{})
 	db.AutoMigrate(&models.Payment{})
 
-	subscriber := methods2.SubscribeModelOrder(db, nc)
+	Cache := cache.NewCache()
+	Service := service.NewService(Cache)
 
-	handlers := handler.NewHandler()
+	subscriber := methods.SubscribeModelOrder(db, nc, Cache)
+
+	handlers := handler.NewHandler(Service)
 
 	srv := new(server.Server)
 	if err := srv.Run(viper.GetString("app_port"), handlers.InitAuthRoutes()); err != nil {
