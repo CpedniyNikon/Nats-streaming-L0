@@ -27,9 +27,8 @@ func main() {
 		log.Fatalln("error initializing nats bridge: %s", err.Error())
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 1000; i++ {
 		order := methods.GenerateMockOrder()
-		//fmt.Println(order)
 		b, err := json.Marshal(order)
 		if err != nil {
 			fmt.Printf("Error: %s", err)
