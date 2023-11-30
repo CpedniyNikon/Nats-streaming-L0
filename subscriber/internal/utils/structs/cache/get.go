@@ -6,7 +6,9 @@ import (
 	_ "publisher/internal/models"
 )
 
-func (c Cache) Get(orderId string) models.Order {
+func (c *Cache) Get(orderId string) models.Order {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
 	if value, ok := c.cache[orderId]; ok {
 		return value
 	} else {
